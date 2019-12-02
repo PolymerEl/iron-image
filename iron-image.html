@@ -173,7 +173,9 @@ Custom property | Description | Default
          * Sets a sizing option for the image.  Valid values are `contain` (full
          * aspect ratio of the image is contained within the element and
          * letterboxed) or `cover` (image is cropped in order to fully cover the
-         * bounds of the element), or `null` (default: image takes natural size).
+         * bounds of the element), or `null` (default: image takes natural size), 
+         * or 'auto' (calculate width on basis of height and original image
+         * aspect ratio)
          */
         sizing: {type: String, value: null, reflectToAttribute: true},
 
@@ -249,6 +251,8 @@ Custom property | Description | Default
           return;
         }
 
+        this._setAutoWidth()
+
         this._setLoading(false);
         this._setLoaded(true);
         this._setError(false);
@@ -314,6 +318,16 @@ Custom property | Description | Default
 
       _heightChanged: function() {
         this.style.height = isNaN(this.height) ? this.height : this.height + 'px';
+        this._setAutoWidth();
+      },
+
+      _setAutoWidth: function() {
+        if(this.sizing === 'auto') {
+          if(!this.height) {
+            console.error('height need to be set when using auto sizing')
+          }
+          this.width = this.height * this.$.img.width / this.$.img.height;
+        }
       },
 
       _loadStateObserver: function(src, preventLoad) {
